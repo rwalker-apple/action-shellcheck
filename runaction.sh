@@ -1,6 +1,12 @@
-#!/bin/bash
+#!/bin/bash -ex
 
-cd "$GITHUB_WORKSPACE" || exit
+echo HI
+
+ls -a
+
+[[ -n $GITHUB_WORKSPACE ]] || exit $?
+
+cd "$GITHUB_WORKSPACE" || exit $?
 
 EXCLUDES=()
 
@@ -29,7 +35,7 @@ find . "${EXCLUDES[@]}"  \
         -o -name   '*.sh' \
         -o -path '*/.profile*'  -o -path '*/profile*' \
         -o -path '*/.shlib*'    -o -path '*/shlib*'   \
-       ')' -exec shellcheck {} + || exit
+       ')' -exec shellcheck {} + || exit $?
 
 # shellcheck disable=SC2016
 find . "${EXCLUDES[@]}" -type f ! -name '*.*' -perm /111 -exec sh -c '
@@ -39,7 +45,7 @@ find . "${EXCLUDES[@]}" -type f ! -name '*.*' -perm /111 -exec sh -c '
             shellcheck "$f" || err=$?
         done
         exit $err
-        ' _ {} + || exit
+        ' _ {} + || exit $?
 
 if  find . "${EXCLUDES[@]}" -path '*bin/*/*' -type f -perm /111 -print |
     grep .
